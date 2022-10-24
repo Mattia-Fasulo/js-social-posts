@@ -85,6 +85,11 @@ const posts = [
     }
 ];
 
+//funzione per formattare la data
+const creatorData = function (value) {
+    let newArray = value.split('-').reverse().join("-");
+    return newArray;
+}
 
 const myContainer = document.getElementById('container');
 const postLiked = [];
@@ -167,11 +172,7 @@ const drawPost = function () {
 
 drawPost();
 
-//funzione per formattare la data
-const creatorData = function (value) {
-    let newArray = value.split('-').reverse().join("-");
-    return newArray;
-}
+
 
 
 const btnLikes = Array.from(document.querySelectorAll('.like-button'));
