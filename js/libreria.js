@@ -40,12 +40,6 @@ function capitalizeFirstLetter(string) {
   }
 
 //funzione che eestrare da una stringa solo le lettere maiuscole
-function onlyCapitalLetters (str) { 
-let newStr = "";
-for (let i = 0; i < str.length; i ++) {
-    if (str[i].includes("ABCDEFGHIJKLMNOPQRSTUVWXYZ")) {
-        newStr += str[i];
-    }
-}
-return newStr;
+function onlyCapitalLetters (str) {
+    return str.replace(/[^A-Z]+/g, "");
 }
