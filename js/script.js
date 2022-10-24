@@ -25,7 +25,7 @@ BONUS
 
  */
 
- const posts = [
+const posts = [
     {
         "id": 1,
         "content": "Placeat libero ipsa nobis ipsum quibusdam quas harum ut. Distinctio minima iusto. Ad ad maiores et sint voluptate recusandae architecto. Et nihil ullam aut alias.",
@@ -84,12 +84,48 @@ BONUS
 ];
 
 const myContainer = document.getElementById('container');
+const postLiked = [];
 
-const drawPost = function (){
+const drawPost = function () {
     posts.forEach((value, index) => {
         const post = document.createElement('div');
         post.classList.add('post');
-        post.innerHTML = `
+        if (value.author.image === null) {
+            post.innerHTML = `
+            <div class="post__header">
+                  <div class="post-meta">                    
+                      <div class="post-meta__icon">
+                          <div class="profile-pic-default">
+                          <span>LF</span>   
+                          </div>                 
+                      </div>
+                      <div class="post-meta__data">
+                          <div class="post-meta__author">${value.author.name}</div>
+                          <div class="post-meta__time">${value.created}</div>
+                      </div>                    
+                  </div>
+              </div>
+              <div class="post__text">${value.content}</div>
+              <div class="post__image">
+                  <img src="${value.media}" alt="media">
+              </div>
+              <div class="post__footer">
+                  <div class="likes js-likes">
+                      <div class="likes__cta">
+                          <a class="like-button  js-like-button" href="#" data-postid="${index}">
+                              <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
+                              <span class="like-button__label">Mi Piace</span>
+                          </a>
+                      </div>
+                      <div class="likes__counter">
+                          Piace a <b id="like-counter-1" class="js-likes-counter">${value.likes}</b> persone
+                      </div>
+                  </div> 
+              </div>
+            `
+        }
+        else {
+            post.innerHTML = `
         <div class="post__header">
               <div class="post-meta">                    
                   <div class="post-meta__icon">
@@ -97,7 +133,7 @@ const drawPost = function (){
                   </div>
                   <div class="post-meta__data">
                       <div class="post-meta__author">${value.author.name}</div>
-                      <div class="post-meta__time">4 mesi fa</div>
+                      <div class="post-meta__time">${value.created}</div>
                   </div>                    
               </div>
           </div>
@@ -108,7 +144,7 @@ const drawPost = function (){
           <div class="post__footer">
               <div class="likes js-likes">
                   <div class="likes__cta">
-                      <a class="like-button  js-like-button" href="#" data-postid="1">
+                      <a class="like-button  js-like-button" href="#" data-postid="${index}">
                           <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
                           <span class="like-button__label">Mi Piace</span>
                       </a>
@@ -119,9 +155,30 @@ const drawPost = function (){
               </div> 
           </div>
         `
+        }
         myContainer.append(post);
     })
 }
 
+
+
 drawPost();
 
+const btnLikes = Array.from(document.querySelectorAll('.like-button'));
+
+//funzione che gestisce il like
+const addLike = function () {
+        this.classList.add('like-button--liked');
+        posts[this.dataset.postid].likes++;
+        console.log(posts[this.dataset.postid].likes)
+        const idPostLike = posts[this.dataset.postid].id;
+        if(!postLiked.includes(idPostLike)){
+            postLiked.push(idPostLike);
+        }
+        console.log(postLiked)
+        
+}
+
+btnLikes.forEach((value, index) => {
+    value.addEventListener('click', addLike)
+})
