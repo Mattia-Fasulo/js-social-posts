@@ -25,6 +25,8 @@ BONUS
 
  */
 
+
+
 const posts = [
     {
         "id": 1,
@@ -83,6 +85,7 @@ const posts = [
     }
 ];
 
+
 const myContainer = document.getElementById('container');
 const postLiked = [];
 
@@ -101,7 +104,7 @@ const drawPost = function () {
                       </div>
                       <div class="post-meta__data">
                           <div class="post-meta__author">${value.author.name}</div>
-                          <div class="post-meta__time">${value.created}</div>
+                          <div class="post-meta__time">${creatorData(value.created)}</div>
                       </div>                    
                   </div>
               </div>
@@ -133,7 +136,7 @@ const drawPost = function () {
                   </div>
                   <div class="post-meta__data">
                       <div class="post-meta__author">${value.author.name}</div>
-                      <div class="post-meta__time">${value.created}</div>
+                      <div class="post-meta__time">${creatorData(value.created)}</div>
                   </div>                    
               </div>
           </div>
@@ -164,10 +167,18 @@ const drawPost = function () {
 
 drawPost();
 
+//funzione per formattare la data
+const creatorData = function (value) {
+    let newArray = value.split('-').reverse().join("-");
+    return newArray;
+}
+
+
 const btnLikes = Array.from(document.querySelectorAll('.like-button'));
 
 //funzione che gestisce il like
 const addLike = function () {
+    if(!postLiked.includes(posts[this.dataset.postid].id)){
         this.classList.add('like-button--liked');
         posts[this.dataset.postid].likes++;
         console.log(posts[this.dataset.postid].likes)
@@ -176,9 +187,15 @@ const addLike = function () {
             postLiked.push(idPostLike);
         }
         console.log(postLiked)
-        
-}
+    }
+    else {
+        this.classList.toggle('like-button--liked');
+        posts[this.dataset.postid].likes--;
+        console.log(posts[this.dataset.postid].likes)
 
+    }}
+    
+    
 btnLikes.forEach((value, index) => {
     value.addEventListener('click', addLike)
 })
