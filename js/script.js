@@ -19,9 +19,9 @@ x - Milestone 2 - Prendendo come riferimento il layout di esempio presente nell'
 x - Milestone 3- Se clicchiamo sul tasto "Mi Piace" cambiamo il colore al testo del bottone e incrementiamo il counter dei likes relativo.
 Salviamo in un secondo array gli id dei post ai quali abbiamo messo il like.
 BONUS
- 1. Formattare le date in formato italiano (gg/mm/aaaa)
-2. Gestire l'assenza dell'immagine profilo con un elemento di fallback che contiene le iniziali dell'utente (es. Luca Formicola > LF).
- 3. Al click su un pulsante "Mi Piace" di un post, se abbiamo già cliccato dobbiamo decrementare il contatore e cambiare il colore del bottone.
+x 1. Formattare le date in formato italiano (gg/mm/aaaa)
+x 2. Gestire l'assenza dell'immagine profilo con un elemento di fallback che contiene le iniziali dell'utente (es. Luca Formicola > LF).
+x 3. Al click su un pulsante "Mi Piace" di un post, se abbiamo già cliccato dobbiamo decrementare il contatore e cambiare il colore del bottone.
 
  */
 
@@ -94,18 +94,30 @@ const creatorData = function (value) {
 const myContainer = document.getElementById('container');
 const postLiked = [];
 
+//funzione che se non trova l'immagine dell'autore la sostituisce con le iniziali
+function getProfile (profile){
+    if(profile.image){
+       return `<img class="profile-pic" src="${profile.image}" alt="${profile.name}">`  
+    }
+    else {
+        let initial = onlyCapitalLetters(profile.name)
+        return `
+         <div class="profile-pic-default">
+         <span>${initial}</span>
+         </div>
+        `
+    }
+}
+
 const drawPost = function () {
     posts.forEach((value, index) => {
         const post = document.createElement('div');
         post.classList.add('post');
-        if (value.author.image === null) {
             post.innerHTML = `
             <div class="post__header">
                   <div class="post-meta">                    
                       <div class="post-meta__icon">
-                          <div class="profile-pic-default">
-                          <span>${onlyCapitalLetters(value.author.name)}</span>   
-                          </div>                 
+                          ${getProfile(value.author)}                 
                       </div>
                       <div class="post-meta__data">
                           <div class="post-meta__author">${value.author.name}</div>
@@ -120,50 +132,17 @@ const drawPost = function () {
               <div class="post__footer">
                   <div class="likes js-likes">
                       <div class="likes__cta">
-                          <a class="like-button  js-like-button" href="#" data-postid="${index}">
+                          <a class="like-button  js-like-button" href="#" data-postid="${value.id}">
                               <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
                               <span class="like-button__label">Mi Piace</span>
                           </a>
                       </div>
                       <div class="likes__counter">
-                          Piace a <b id="like-counter-1" class="js-likes-counter">${value.likes}</b> persone
+                          Piace a <b id="like-counter-${value.id}" class="js-likes-counter">${value.likes}</b> persone
                       </div>
                   </div> 
               </div>
             `
-        }
-        else {
-            post.innerHTML = `
-        <div class="post__header">
-              <div class="post-meta">                    
-                  <div class="post-meta__icon">
-                      <img class="profile-pic" src="${value.author.image}" alt="Phil Mangione">                    
-                  </div>
-                  <div class="post-meta__data">
-                      <div class="post-meta__author">${value.author.name}</div>
-                      <div class="post-meta__time">${creatorData(value.created)}</div>
-                  </div>                    
-              </div>
-          </div>
-          <div class="post__text">${value.content}</div>
-          <div class="post__image">
-              <img src="${value.media}" alt="media">
-          </div>
-          <div class="post__footer">
-              <div class="likes js-likes">
-                  <div class="likes__cta">
-                      <a class="like-button  js-like-button" href="#" data-postid="${index}">
-                          <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
-                          <span class="like-button__label">Mi Piace</span>
-                      </a>
-                  </div>
-                  <div class="likes__counter">
-                      Piace a <b id="like-counter-1" class="js-likes-counter">${value.likes}</b> persone
-                  </div>
-              </div> 
-          </div>
-        `
-        }
         myContainer.append(post);
     })
 }
@@ -176,29 +155,52 @@ drawPost();
 
 
 const btnLikes = Array.from(document.querySelectorAll('.like-button'));
-
-//funzione che gestisce il like
-const addLike = function () {
-    if(!postLiked.includes(posts[this.dataset.postid].id)){
-        this.classList.add('like-button--liked');
-        posts[this.dataset.postid].likes++;
-        console.log(posts[this.dataset.postid].likes)
-        const idPostLike = posts[this.dataset.postid].id;
-        if(!postLiked.includes(idPostLike)){
-            postLiked.push(idPostLike);
-        }
-        console.log(postLiked)
-    }
-    else {
-        this.classList.toggle('like-button--liked');
-        posts[this.dataset.postid].likes--;
-        console.log(posts[this.dataset.postid].likes)
-
-    }}
     
     
 btnLikes.forEach((value, index) => {
-    value.addEventListener('click', addLike)
+    value.addEventListener('click', function(e){
+        // console.log(e);
+        //evito che venga lanciato l'evento di default (href="#") del bottone
+        e.preventDefault(); 
+
+        //aggiungo/rimuovo la classe sul bottone like al click 
+        value.classList.toggle('like-button--liked');
+
+        //prendo l'id del post dal data set
+        const postId = parseInt(value.dataset.postid)
+
+        //prendo l'elemento contenitore del numero di likes 
+        const likes = document.getElementById('like-counter-'+postId);
+
+        //recupero dall'array dei post l'indice del post corrente
+        const postIndex = posts.findIndex((value)=>{
+            return value.id === postId;
+        })
+
+        if(postIndex === -1) return;
+        
+
+        //recupero dall'array dei post che mi piaciono l'indice se c'è
+        const likeIndex = postLiked.indexOf(postId)
+
+
+        //controllo se l'indice trovato è o meno -1
+        if(likeIndex !== -1){
+            //ho trovato l'indice quindi decremento i like
+            posts[postIndex].likes -= 1;
+            postLiked.splice(likeIndex, 1);
+        }
+        else{
+            //il valore di ritorno era -1 quindi l'id non era presente nell'array dei like 
+            //incremento i like e lo pusho nell'array
+            posts[postIndex].likes += 1;
+            postLiked.push(postId);
+            
+        }
+        // stampo il nuovo valore del numero dei like nell'html
+        likes.innerHTML = posts[postIndex].likes;
+    })
 })
 
 
+ 
